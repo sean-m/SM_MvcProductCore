@@ -11,6 +11,10 @@ using System.Threading.Tasks;
 using SM_MvcProductCore.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using SM_MvcProductCore.Services;
+using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.Azure.Cosmos;
+using SM_MvcProductCore.Data;
 
 namespace SM_MvcProductCore
 {
@@ -35,6 +39,11 @@ namespace SM_MvcProductCore
                     (Configuration.GetSection("ConnectionStrings"));
 
             services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
+
+            services.AddSingleton<ICosmosDbService>
+                (InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb"))
+                .GetAwaiter().GetResult());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,6 +70,26 @@ namespace SM_MvcProductCore
             app.UseEndpoints(endpoints => {
                 endpoints.MapRazorPages();
             });
+        }
+
+
+        private static async Task<CosmosDbService> InitializeCosmosClientInstanceAsync(IConfigurationSection
+            configurationSection)
+        {
+            string databaseName  = configurationSection.GetSection("DatabaseName").Value;
+            string containerName = configurationSection.GetSection("ContainerName").Value;
+            string account = configurationSection.GetSection("Account").Value;
+            string key = configurationSection.GetSection("Key").Value;
+            CosmosClientBuilder clientBuilder = new CosmosClientBuilder(account, key);
+            CosmosClient client = clientBuilder
+                .WithConnectionModeDirect()
+                .Build();
+            CosmosDbService cosmosDbService = new CosmosDbService(client,
+                databaseName, containerName);
+            DatabaseResponse database = await
+                client.CreateDatabaseIfNotExistsAsync(databaseName);
+            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
+            return cosmosDbService;
         }
     }
 }

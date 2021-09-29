@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SM_MvcProductCore.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace SM_MvcProductCore
 {
@@ -25,13 +26,15 @@ namespace SM_MvcProductCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<DbConnectionSettings>
-                (Configuration.GetSection("ConnectionStrings"));
+            services.AddRazorPages();
 
             services.AddDbContext<AdventureWorksLT2016Context>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AdventureWorksDbContext")));
 
-            services.AddRazorPages();
+            services.Configure<DbConnectionSettings>
+                    (Configuration.GetSection("ConnectionStrings"));
+
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

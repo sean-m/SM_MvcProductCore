@@ -2,9 +2,34 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
+
 }
+@using System.Collections;
+@using System.Linq;
 
 <div class="text-center">
+    <a href="/Products">Products</a>
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>Environment @Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")</p>
+        
+
+</div>
+<div class="container-fluid">
+    <table class="table-striped">
+        <thead>
+            <tr>
+                <th>Env</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        @foreach (string name in System.Environment.GetEnvironmentVariables().Keys.Cast<string>().OrderBy(x => x))
+        {
+            var e = System.Environment.GetEnvironmentVariable(name);
+        <tr>
+            <td>@(name)</td>
+            <td>@(e)</td>
+        </tr>
+        }
+    </table>
 </div>

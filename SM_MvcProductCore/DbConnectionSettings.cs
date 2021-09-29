@@ -7,6 +7,9 @@ namespace SM_MvcProductCore
 {
     public class DbConnectionSettings
     {
-        public string AdventureDbWorksContext { get; set; }
+        public string AdventureDbWorksContext {
+            get;
+            set;
+        }
     }
 }
